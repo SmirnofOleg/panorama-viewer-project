@@ -19,6 +19,7 @@ const Index = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [likes, setLikes] = useState<Record<number, boolean>>({});
   const [likesCounts, setLikesCounts] = useState<Record<number, number>>({});
+  const [currentModalIndex, setCurrentModalIndex] = useState(0);
 
   const [panoramas, setPanoramas] = useState([
     {
@@ -294,7 +295,10 @@ const Index = () => {
                       <DialogTrigger asChild>
                         <Button 
                           className="absolute inset-0 w-full h-full bg-transparent hover:bg-transparent border-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                          onClick={() => setSelectedPanorama(panorama)}
+                          onClick={() => {
+                            setSelectedPanorama(panorama);
+                            setCurrentModalIndex(filteredPanoramas.findIndex(p => p.id === panorama.id));
+                          }}
                         >
                           <Icon name="Maximize" size={32} className="text-white" />
                         </Button>
@@ -303,31 +307,100 @@ const Index = () => {
                         <div className="relative">
                           <div className="w-full h-[60vh] relative">
                             <PanoramaViewer 
-                              imageUrl={panorama.image}
+                              imageUrl={filteredPanoramas[currentModalIndex]?.image}
                               className="absolute inset-0"
                             />
+                            
+                            {/* Navigation arrows */}
+                            {filteredPanoramas.length > 1 && (
+                              <>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
+                                  onClick={() => {
+                                    const newIndex = currentModalIndex > 0 ? currentModalIndex - 1 : filteredPanoramas.length - 1;
+                                    setCurrentModalIndex(newIndex);
+                                    setSelectedPanorama(filteredPanoramas[newIndex]);
+                                  }}
+                                >
+                                  <Icon name="ChevronLeft" size={20} />
+                                </Button>
+                                
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
+                                  onClick={() => {
+                                    const newIndex = currentModalIndex < filteredPanoramas.length - 1 ? currentModalIndex + 1 : 0;
+                                    setCurrentModalIndex(newIndex);
+                                    setSelectedPanorama(filteredPanoramas[newIndex]);
+                                  }}
+                                >
+                                  <Icon name="ChevronRight" size={20} />
+                                </Button>
+                              </>
+                            )}
+
+                            {/* Counter and like button */}
+                            <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+                              <Badge className="bg-black/50 text-white border-0">
+                                {currentModalIndex + 1} / {filteredPanoramas.length}
+                              </Badge>
+                            </div>
+                            
                             <div className="absolute top-4 right-4 z-10">
                               <Button
                                 size="sm"
                                 variant="secondary"
-                                onClick={() => toggleLike(panorama.id)}
+                                onClick={() => toggleLike(filteredPanoramas[currentModalIndex]?.id)}
                                 className="bg-white/80 hover:bg-white"
                               >
                                 <Icon 
                                   name="Heart" 
                                   size={16} 
-                                  className={likes[panorama.id] ? 'text-red-500 fill-current' : ''}
+                                  className={likes[filteredPanoramas[currentModalIndex]?.id] ? 'text-red-500 fill-current' : ''}
                                 />
-                                <span className="ml-1">{likesCounts[panorama.id] || panorama.likes}</span>
+                                <span className="ml-1">{likesCounts[filteredPanoramas[currentModalIndex]?.id] || filteredPanoramas[currentModalIndex]?.likes}</span>
                               </Button>
                             </div>
                           </div>
                           <div className="p-6">
-                            <h3 className="text-2xl font-bold mb-2">{panorama.title}</h3>
-                            <p className="text-slate-600 mb-4">{panorama.description}</p>
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <h3 className="text-2xl font-bold mb-2">{filteredPanoramas[currentModalIndex]?.title}</h3>
+                                <p className="text-slate-600">{filteredPanoramas[currentModalIndex]?.description}</p>
+                              </div>
+                              
+                              {/* Mini thumbnails slider */}
+                              {filteredPanoramas.length > 1 && (
+                                <div className="flex gap-2 max-w-xs overflow-x-auto scrollbar-hide">
+                                  {filteredPanoramas.map((thumb, index) => (
+                                    <button
+                                      key={thumb.id}
+                                      onClick={() => {
+                                        setCurrentModalIndex(index);
+                                        setSelectedPanorama(thumb);
+                                      }}
+                                      className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${
+                                        index === currentModalIndex
+                                          ? 'border-primary shadow-lg'
+                                          : 'border-gray-200 hover:border-gray-300'
+                                      }`}
+                                    >
+                                      <img
+                                        src={thumb.image}
+                                        alt={thumb.title}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                             
                             <div className="flex gap-2 mb-6">
-                              {panorama.tags.map(tag => (
+                              {filteredPanoramas[currentModalIndex]?.tags.map(tag => (
                                 <Badge key={tag} variant="outline">#{tag}</Badge>
                               ))}
                             </div>
@@ -335,7 +408,7 @@ const Index = () => {
                             <div className="border-t pt-4">
                               <h4 className="font-semibold mb-3">Комментарии</h4>
                               <div className="space-y-2 mb-4 max-h-32 overflow-y-auto">
-                                {(comments[panorama.id] || []).map((comment, idx) => (
+                                {(comments[filteredPanoramas[currentModalIndex]?.id] || []).map((comment, idx) => (
                                   <div key={idx} className="bg-slate-50 p-3 rounded-lg text-sm">
                                     {comment}
                                   </div>
@@ -348,7 +421,7 @@ const Index = () => {
                                   onChange={(e) => setNewComment(e.target.value)}
                                   className="flex-1 min-h-[40px] max-h-[80px]"
                                 />
-                                <Button onClick={() => addComment(panorama.id)}>
+                                <Button onClick={() => addComment(filteredPanoramas[currentModalIndex]?.id)}>
                                   <Icon name="Send" size={16} />
                                 </Button>
                               </div>
