@@ -7,8 +7,6 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-import PanoramaViewer from '@/components/PanoramaViewer';
-import AdminPanel from '@/components/AdminPanel';
 
 const Index = () => {
   const [selectedPanorama, setSelectedPanorama] = useState<any>(null);
@@ -16,23 +14,15 @@ const Index = () => {
   const [newComment, setNewComment] = useState('');
   const [currentSlideshow, setCurrentSlideshow] = useState(0);
   const [isSlideshow, setIsSlideshow] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [likes, setLikes] = useState<Record<number, boolean>>({});
-  const [likesCounts, setLikesCounts] = useState<Record<number, number>>({});
-  const [currentModalIndex, setCurrentModalIndex] = useState(0);
 
-  const [panoramas, setPanoramas] = useState([
+  const panoramas = [
     {
       id: 1,
       title: "Горные вершины",
       category: "Природа",
       image: "/img/fc339de0-fed1-451c-b1b8-6246250018a7.jpg",
       description: "Захватывающий вид на заснеженные горные пики",
-      tags: ["горы", "снег", "пейзаж"],
-      likes: 42,
-      views: 156,
-      uploadDate: "2024-08-20",
-      status: 'published' as const
+      tags: ["горы", "снег", "пейзаж"]
     },
     {
       id: 2, 
@@ -40,11 +30,7 @@ const Index = () => {
       category: "Архитектура",
       image: "/img/f4d5d75a-0cec-4536-8747-d88e9470b27a.jpg", 
       description: "Современный мегаполис в золотых лучах заката",
-      tags: ["город", "закат", "небоскрёбы"],
-      likes: 38,
-      views: 203,
-      uploadDate: "2024-08-22",
-      status: 'published' as const
+      tags: ["город", "закат", "небоскрёбы"]
     },
     {
       id: 3,
@@ -52,22 +38,9 @@ const Index = () => {
       category: "Природа",
       image: "/img/e882a710-f2ee-4495-9e24-37e7136a7f62.jpg",
       description: "Кристально чистые воды и белоснежный песок",
-      tags: ["пляж", "океан", "тропики"],
-      likes: 67,
-      views: 289,
-      uploadDate: "2024-08-25",
-      status: 'published' as const
+      tags: ["пляж", "океан", "тропики"]
     }
-  ]);
-
-  // Initialize likes counts
-  useState(() => {
-    const initialLikes: Record<number, number> = {};
-    panoramas.forEach(p => {
-      initialLikes[p.id] = p.likes;
-    });
-    setLikesCounts(initialLikes);
-  });
+  ];
 
   const categories = ["Все", "Природа", "Архитектура", "Путешествия"];
   const [activeCategory, setActiveCategory] = useState("Все");
@@ -83,37 +56,6 @@ const Index = () => {
       [panoramaId]: [...(prev[panoramaId] || []), newComment]
     }));
     setNewComment('');
-  };
-
-  const toggleLike = (panoramaId: number) => {
-    const isLiked = likes[panoramaId] || false;
-    setLikes(prev => ({ ...prev, [panoramaId]: !isLiked }));
-    setLikesCounts(prev => ({
-      ...prev,
-      [panoramaId]: prev[panoramaId] + (isLiked ? -1 : 1)
-    }));
-  };
-
-  const handleAddPanorama = (newPanorama: any) => {
-    const panorama = {
-      ...newPanorama,
-      id: Date.now(),
-      likes: 0,
-      views: 0,
-      uploadDate: new Date().toISOString().split('T')[0]
-    };
-    setPanoramas(prev => [...prev, panorama]);
-    setLikesCounts(prev => ({ ...prev, [panorama.id]: 0 }));
-  };
-
-  const handleEditPanorama = (id: number, updates: any) => {
-    setPanoramas(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-  };
-
-  const handleDeletePanorama = (id: number) => {
-    setPanoramas(prev => prev.filter(p => p.id !== id));
-    setLikes(prev => { const newLikes = { ...prev }; delete newLikes[id]; return newLikes; });
-    setLikesCounts(prev => { const newCounts = { ...prev }; delete newCounts[id]; return newCounts; });
   };
 
   const startSlideshow = () => {
@@ -146,23 +88,11 @@ const Index = () => {
             </div>
             
             <nav className="hidden md:flex items-center space-x-8">
-              <button 
-                onClick={() => setShowAdmin(false)}
-                className="text-slate-600 hover:text-primary transition-colors"
-              >
-                Главная
-              </button>
+              <a href="#" className="text-slate-600 hover:text-primary transition-colors">Главная</a>
               <a href="#" className="text-slate-600 hover:text-primary transition-colors">Галерея</a>
               <a href="#" className="text-slate-600 hover:text-primary transition-colors">Категории</a>
               <a href="#" className="text-slate-600 hover:text-primary transition-colors">О проекте</a>
               <a href="#" className="text-slate-600 hover:text-primary transition-colors">Избранное</a>
-              <button 
-                onClick={() => setShowAdmin(!showAdmin)}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                <Icon name="Settings" size={16} className="mr-2 inline" />
-                Админ
-              </button>
             </nav>
 
             <Sheet>
@@ -185,329 +115,213 @@ const Index = () => {
         </div>
       </header>
 
-      {showAdmin ? (
-        <div className="container mx-auto px-6 py-8">
-          <AdminPanel 
-            panoramas={panoramas}
-            onAddPanorama={handleAddPanorama}
-            onEditPanorama={handleEditPanorama}
-            onDeletePanorama={handleDeletePanorama}
-          />
+      {/* Hero Section */}
+      <section className="py-16 px-6">
+        <div className="container mx-auto text-center">
+          <h2 className="text-5xl font-bold text-slate-800 mb-6">
+            Погрузитесь в мир 
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> 360°</span>
+          </h2>
+          <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+            Исследуйте захватывающие панорамы со всех уголков планеты. 
+            Каждый кадр — это путешествие.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="px-8" onClick={startSlideshow}>
+              <Icon name="Play" size={20} className="mr-2" />
+              Слайд-шоу
+            </Button>
+            <Button size="lg" variant="outline" className="px-8">
+              <Icon name="Camera" size={20} className="mr-2" />
+              Смотреть все
+            </Button>
+          </div>
         </div>
-      ) : (
-        <>
-        {/* Hero Section */}
-        <section className="py-16 px-6">
-          <div className="container mx-auto text-center">
-            <h2 className="text-5xl font-bold text-slate-800 mb-6">
-              Погрузитесь в мир 
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> 360°</span>
-            </h2>
-            <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-              Исследуйте захватывающие панорамы со всех уголков планеты. 
-              Каждый кадр — это путешествие.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="px-8" onClick={startSlideshow}>
-                <Icon name="Play" size={20} className="mr-2" />
-                Слайд-шоу
-              </Button>
-              <Button size="lg" variant="outline" className="px-8">
-                <Icon name="Camera" size={20} className="mr-2" />
-                Смотреть все
-              </Button>
+      </section>
+
+      {/* Slideshow Modal */}
+      {isSlideshow && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
+          <div className="relative w-full h-full max-w-6xl max-h-4xl">
+            <img 
+              src={filteredPanoramas[currentSlideshow]?.image}
+              alt={filteredPanoramas[currentSlideshow]?.title}
+              className="w-full h-full object-cover rounded-lg"
+            />
+            <Button 
+              variant="secondary"
+              className="absolute top-4 right-4"
+              onClick={() => setIsSlideshow(false)}
+            >
+              <Icon name="X" size={20} />
+            </Button>
+            <div className="absolute bottom-4 left-4 text-white">
+              <h3 className="text-2xl font-bold">{filteredPanoramas[currentSlideshow]?.title}</h3>
+              <p className="text-lg opacity-80">{filteredPanoramas[currentSlideshow]?.description}</p>
             </div>
           </div>
-        </section>
+        </div>
+      )}
 
-        {/* Slideshow Modal */}
-        {isSlideshow && (
-          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
-            <div className="relative w-full h-full max-w-6xl max-h-4xl">
-              <PanoramaViewer 
-                imageUrl={filteredPanoramas[currentSlideshow]?.image}
-                className="w-full h-full"
-              />
-              <Button 
-                variant="secondary"
-                className="absolute top-4 right-4 z-10"
-                onClick={() => setIsSlideshow(false)}
-              >
-                <Icon name="X" size={20} />
-              </Button>
-              <div className="absolute bottom-4 left-4 text-white z-10">
-                <h3 className="text-2xl font-bold">{filteredPanoramas[currentSlideshow]?.title}</h3>
-                <p className="text-lg opacity-80">{filteredPanoramas[currentSlideshow]?.description}</p>
-              </div>
-            </div>
-          </div>
-        )}
+      {/* Categories */}
+      <section className="px-6 mb-12">
+        <div className="container mx-auto">
+          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-4 mb-8">
+              {categories.map(category => (
+                <TabsTrigger key={category} value={category} className="text-sm">
+                  {category}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+      </section>
 
-        {/* Categories */}
-        <section className="px-6 mb-12">
-          <div className="container mx-auto">
-            <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
-              <TabsList className="grid w-full max-w-md mx-auto grid-cols-4 mb-8">
-                {categories.map(category => (
-                  <TabsTrigger key={category} value={category} className="text-sm">
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-        </section>
-
-        {/* Panorama Gallery */}
-        <section className="px-6 pb-16">
-          <div className="container mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPanoramas.map((panorama) => (
-                <Card key={panorama.id} className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-0 shadow-lg">
-                  <div className="relative overflow-hidden">
-                    <img 
-                      src={panorama.image}
-                      alt={panorama.title}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <Badge variant="secondary" className="bg-white/90 text-slate-800">
-                        {panorama.category}
-                      </Badge>
-                    </div>
-                    <div className="absolute top-4 right-4">
+      {/* Panorama Gallery */}
+      <section className="px-6 pb-16">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredPanoramas.map((panorama) => (
+              <Card key={panorama.id} className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-0 shadow-lg">
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={panorama.image}
+                    alt={panorama.title}
+                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <Badge variant="secondary" className="bg-white/90 text-slate-800">
+                      {panorama.category}
+                    </Badge>
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <Button size="sm" variant="secondary" className="bg-white/90 hover:bg-white">
+                      <Icon name="Heart" size={16} />
+                    </Button>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
                       <Button 
-                        size="sm" 
-                        variant="secondary" 
-                        className="bg-white/90 hover:bg-white"
-                        onClick={() => toggleLike(panorama.id)}
+                        className="absolute inset-0 w-full h-full bg-transparent hover:bg-transparent border-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        onClick={() => setSelectedPanorama(panorama)}
                       >
-                        <Icon 
-                          name="Heart" 
-                          size={16} 
-                          className={likes[panorama.id] ? 'text-red-500 fill-current' : ''}
-                        />
+                        <Icon name="Maximize" size={32} className="text-white" />
                       </Button>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          className="absolute inset-0 w-full h-full bg-transparent hover:bg-transparent border-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                          onClick={() => {
-                            setSelectedPanorama(panorama);
-                            setCurrentModalIndex(filteredPanoramas.findIndex(p => p.id === panorama.id));
-                          }}
-                        >
-                          <Icon name="Maximize" size={32} className="text-white" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0">
-                        <div className="relative">
-                          <div className="w-full h-[60vh] relative">
-                            <PanoramaViewer 
-                              imageUrl={filteredPanoramas[currentModalIndex]?.image}
-                              className="absolute inset-0"
-                            />
-                            
-                            {/* Navigation arrows */}
-                            {filteredPanoramas.length > 1 && (
-                              <>
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
-                                  onClick={() => {
-                                    const newIndex = currentModalIndex > 0 ? currentModalIndex - 1 : filteredPanoramas.length - 1;
-                                    setCurrentModalIndex(newIndex);
-                                    setSelectedPanorama(filteredPanoramas[newIndex]);
-                                  }}
-                                >
-                                  <Icon name="ChevronLeft" size={20} />
-                                </Button>
-                                
-                                <Button
-                                  variant="secondary"
-                                  size="sm"
-                                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
-                                  onClick={() => {
-                                    const newIndex = currentModalIndex < filteredPanoramas.length - 1 ? currentModalIndex + 1 : 0;
-                                    setCurrentModalIndex(newIndex);
-                                    setSelectedPanorama(filteredPanoramas[newIndex]);
-                                  }}
-                                >
-                                  <Icon name="ChevronRight" size={20} />
-                                </Button>
-                              </>
-                            )}
+                    </DialogTrigger>
+                    <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0">
+                      <div className="relative">
+                        <img 
+                          src={panorama.image}
+                          alt={panorama.title}
+                          className="w-full h-[60vh] object-cover"
+                        />
+                        <div className="p-6">
+                          <h3 className="text-2xl font-bold mb-2">{panorama.title}</h3>
+                          <p className="text-slate-600 mb-4">{panorama.description}</p>
+                          
+                          <div className="flex gap-2 mb-6">
+                            {panorama.tags.map(tag => (
+                              <Badge key={tag} variant="outline">#{tag}</Badge>
+                            ))}
+                          </div>
 
-                            {/* Counter and like button */}
-                            <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-                              <Badge className="bg-black/50 text-white border-0">
-                                {currentModalIndex + 1} / {filteredPanoramas.length}
-                              </Badge>
+                          <div className="border-t pt-4">
+                            <h4 className="font-semibold mb-3">Комментарии</h4>
+                            <div className="space-y-2 mb-4 max-h-32 overflow-y-auto">
+                              {(comments[panorama.id] || []).map((comment, idx) => (
+                                <div key={idx} className="bg-slate-50 p-3 rounded-lg text-sm">
+                                  {comment}
+                                </div>
+                              ))}
                             </div>
-                            
-                            <div className="absolute top-4 right-4 z-10">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={() => toggleLike(filteredPanoramas[currentModalIndex]?.id)}
-                                className="bg-white/80 hover:bg-white"
-                              >
-                                <Icon 
-                                  name="Heart" 
-                                  size={16} 
-                                  className={likes[filteredPanoramas[currentModalIndex]?.id] ? 'text-red-500 fill-current' : ''}
-                                />
-                                <span className="ml-1">{likesCounts[filteredPanoramas[currentModalIndex]?.id] || filteredPanoramas[currentModalIndex]?.likes}</span>
+                            <div className="flex gap-2">
+                              <Textarea 
+                                placeholder="Оставьте комментарий..."
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                className="flex-1 min-h-[40px] max-h-[80px]"
+                              />
+                              <Button onClick={() => addComment(panorama.id)}>
+                                <Icon name="Send" size={16} />
                               </Button>
                             </div>
                           </div>
-                          <div className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                              <div>
-                                <h3 className="text-2xl font-bold mb-2">{filteredPanoramas[currentModalIndex]?.title}</h3>
-                                <p className="text-slate-600">{filteredPanoramas[currentModalIndex]?.description}</p>
-                              </div>
-                              
-                              {/* Mini thumbnails slider */}
-                              {filteredPanoramas.length > 1 && (
-                                <div className="flex gap-2 max-w-xs overflow-x-auto scrollbar-hide">
-                                  {filteredPanoramas.map((thumb, index) => (
-                                    <button
-                                      key={thumb.id}
-                                      onClick={() => {
-                                        setCurrentModalIndex(index);
-                                        setSelectedPanorama(thumb);
-                                      }}
-                                      className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${
-                                        index === currentModalIndex
-                                          ? 'border-primary shadow-lg'
-                                          : 'border-gray-200 hover:border-gray-300'
-                                      }`}
-                                    >
-                                      <img
-                                        src={thumb.image}
-                                        alt={thumb.title}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                            
-                            <div className="flex gap-2 mb-6">
-                              {filteredPanoramas[currentModalIndex]?.tags.map(tag => (
-                                <Badge key={tag} variant="outline">#{tag}</Badge>
-                              ))}
-                            </div>
-
-                            <div className="border-t pt-4">
-                              <h4 className="font-semibold mb-3">Комментарии</h4>
-                              <div className="space-y-2 mb-4 max-h-32 overflow-y-auto">
-                                {(comments[filteredPanoramas[currentModalIndex]?.id] || []).map((comment, idx) => (
-                                  <div key={idx} className="bg-slate-50 p-3 rounded-lg text-sm">
-                                    {comment}
-                                  </div>
-                                ))}
-                              </div>
-                              <div className="flex gap-2">
-                                <Textarea 
-                                  placeholder="Оставьте комментарий..."
-                                  value={newComment}
-                                  onChange={(e) => setNewComment(e.target.value)}
-                                  className="flex-1 min-h-[40px] max-h-[80px]"
-                                />
-                                <Button onClick={() => addComment(filteredPanoramas[currentModalIndex]?.id)}>
-                                  <Icon name="Send" size={16} />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                      {panorama.title}
-                    </h3>
-                    <p className="text-slate-600 mb-4">{panorama.description}</p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-2">
-                        {panorama.tags.slice(0, 2).map(tag => (
-                          <Badge key={tag} variant="outline" className="text-xs">#{tag}</Badge>
-                        ))}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-slate-500">
-                        <div className="flex items-center gap-1">
-                          <Icon name="Heart" size={14} className="text-red-500" />
-                          <span>{likesCounts[panorama.id] || panorama.likes}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Icon name="Eye" size={14} />
-                          <span>{panorama.views}</span>
-                        </div>
-                        <span className="text-primary font-medium">360°</span>
-                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                    {panorama.title}
+                  </h3>
+                  <p className="text-slate-600 mb-4">{panorama.description}</p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      {panorama.tags.slice(0, 2).map(tag => (
+                        <Badge key={tag} variant="outline" className="text-xs">#{tag}</Badge>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <Icon name="Eye" size={16} />
+                      <span>360°</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="bg-slate-800 text-white py-12">
-          <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div>
-                <div className="flex items-center space-x-2 mb-4">
-                  <Icon name="Camera" size={24} />
-                  <span className="text-xl font-bold">360° Панорамы</span>
-                </div>
-                <p className="text-slate-300">
-                  Погружайтесь в удивительные миры через технологию панорамной съёмки.
-                </p>
+      {/* Footer */}
+      <footer className="bg-slate-800 text-white py-12">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Icon name="Camera" size={24} />
+                <span className="text-xl font-bold">360° Панорамы</span>
               </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Разделы</h4>
-                <div className="space-y-2">
-                  <a href="#" className="block text-slate-300 hover:text-white transition-colors">Природа</a>
-                  <a href="#" className="block text-slate-300 hover:text-white transition-colors">Архитектура</a>
-                  <a href="#" className="block text-slate-300 hover:text-white transition-colors">Путешествия</a>
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Контакты</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Icon name="Mail" size={16} />
-                    <span className="text-slate-300">info@360panoramas.ru</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Icon name="MapPin" size={16} />
-                    <span className="text-slate-300">Москва, Россия</span>
-                  </div>
-                </div>
+              <p className="text-slate-300">
+                Погружайтесь в удивительные миры через технологию панорамной съёмки.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Разделы</h4>
+              <div className="space-y-2">
+                <a href="#" className="block text-slate-300 hover:text-white transition-colors">Природа</a>
+                <a href="#" className="block text-slate-300 hover:text-white transition-colors">Архитектура</a>
+                <a href="#" className="block text-slate-300 hover:text-white transition-colors">Путешествия</a>
               </div>
             </div>
             
-            <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
-              <p>&copy; 2024 360° Панорамы. Все права защищены.</p>
+            <div>
+              <h4 className="font-semibold mb-4">Контакты</h4>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Icon name="Mail" size={16} />
+                  <span className="text-slate-300">info@360panoramas.ru</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Icon name="MapPin" size={16} />
+                  <span className="text-slate-300">Москва, Россия</span>
+                </div>
+              </div>
             </div>
           </div>
-        </footer>
-        </>
-      )}
+          
+          <div className="border-t border-slate-700 mt-8 pt-8 text-center text-slate-400">
+            <p>&copy; 2024 360° Панорамы. Все права защищены.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
