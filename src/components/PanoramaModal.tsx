@@ -1,9 +1,8 @@
+import { DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DialogContent } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-import PanoramaViewer from '@/components/PanoramaViewer';
 
 interface PanoramaModalProps {
   filteredPanoramas: any[];
@@ -19,148 +18,141 @@ interface PanoramaModalProps {
   onAddComment: (id: number) => void;
 }
 
-const PanoramaModal = ({ 
-  filteredPanoramas, 
-  currentModalIndex, 
-  likes, 
-  likesCounts, 
+const PanoramaModal = ({
+  filteredPanoramas,
+  currentModalIndex,
+  likes,
+  likesCounts,
   comments,
   newComment,
-  onModalIndexChange, 
-  onSelectPanorama, 
+  onModalIndexChange,
+  onSelectPanorama,
   onToggleLike,
   onCommentChange,
   onAddComment
 }: PanoramaModalProps) => {
-  const handlePrevious = () => {
+  const currentPanorama = filteredPanoramas[currentModalIndex];
+  if (!currentPanorama) return null;
+
+  const goToPrevious = () => {
     const newIndex = currentModalIndex > 0 ? currentModalIndex - 1 : filteredPanoramas.length - 1;
     onModalIndexChange(newIndex);
     onSelectPanorama(filteredPanoramas[newIndex]);
   };
 
-  const handleNext = () => {
+  const goToNext = () => {
     const newIndex = currentModalIndex < filteredPanoramas.length - 1 ? currentModalIndex + 1 : 0;
     onModalIndexChange(newIndex);
     onSelectPanorama(filteredPanoramas[newIndex]);
   };
 
-  const handleThumbnailClick = (index: number) => {
-    onModalIndexChange(index);
-    onSelectPanorama(filteredPanoramas[index]);
-  };
-
-  const currentPanorama = filteredPanoramas[currentModalIndex];
-
   return (
-    <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0">
-      <div className="relative">
-        <div className="w-full h-[60vh] relative">
-          <PanoramaViewer 
-            imageUrl={currentPanorama?.image}
-            className="absolute inset-0"
-          />
-          
-          {/* Navigation arrows */}
-          {filteredPanoramas.length > 1 && (
-            <>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
-                onClick={handlePrevious}
-              >
-                <Icon name="ChevronLeft" size={20} />
-              </Button>
-              
-              <Button
-                variant="secondary"
-                size="sm"
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white"
-                onClick={handleNext}
-              >
-                <Icon name="ChevronRight" size={20} />
-              </Button>
-            </>
-          )}
+    <DialogContent className="max-w-6xl w-full h-[90vh] p-0">
+      <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
+        {/* Image */}
+        <img 
+          src={currentPanorama.image}
+          alt={currentPanorama.title}
+          className="w-full h-2/3 object-cover"
+        />
+        
+        {/* Navigation arrows */}
+        <Button
+          variant="secondary"
+          size="sm"
+          className="absolute left-4 top-1/3 transform -translate-y-1/2 z-10"
+          onClick={goToPrevious}
+        >
+          <Icon name="ChevronLeft" size={20} />
+        </Button>
+        
+        <Button
+          variant="secondary"
+          size="sm"
+          className="absolute right-4 top-1/3 transform -translate-y-1/2 z-10"
+          onClick={goToNext}
+        >
+          <Icon name="ChevronRight" size={20} />
+        </Button>
 
-          {/* Counter and like button */}
-          <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-            <Badge className="bg-black/50 text-white border-0">
-              {currentModalIndex + 1} / {filteredPanoramas.length}
-            </Badge>
-          </div>
+        {/* Content */}
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/90 to-transparent p-6 text-white overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-white mb-2">
+              {currentPanorama.title}
+            </DialogTitle>
+          </DialogHeader>
           
-          <div className="absolute top-4 right-4 z-10">
+          <div className="flex items-center gap-4 mb-4">
+            <Badge variant="secondary" className="bg-white/20 text-white">
+              {currentPanorama.category}
+            </Badge>
+            <div className="flex gap-2">
+              {currentPanorama.tags?.map((tag: string) => (
+                <Badge key={tag} variant="outline" className="text-xs text-white/80 border-white/30">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-white/90 mb-4">{currentPanorama.description}</p>
+          
+          <div className="flex items-center gap-6 mb-4 text-sm">
             <Button
+              variant="ghost"
               size="sm"
-              variant="secondary"
-              onClick={() => onToggleLike(currentPanorama?.id)}
-              className="bg-white/80 hover:bg-white"
+              className="text-white hover:bg-white/20"
+              onClick={() => onToggleLike(currentPanorama.id)}
             >
               <Icon 
                 name="Heart" 
                 size={16} 
-                className={likes[currentPanorama?.id] ? 'text-red-500 fill-current' : ''}
+                className={`mr-1 ${likes[currentPanorama.id] ? 'text-red-500 fill-current' : ''}`}
               />
-              <span className="ml-1">{likesCounts[currentPanorama?.id] || currentPanorama?.likes}</span>
+              {likesCounts[currentPanorama.id] || currentPanorama.likes}
             </Button>
-          </div>
-        </div>
-
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-2xl font-bold mb-2">{currentPanorama?.title}</h3>
-              <p className="text-slate-600">{currentPanorama?.description}</p>
+            
+            <div className="flex items-center gap-1 text-white/70">
+              <Icon name="Eye" size={16} />
+              <span>{currentPanorama.views}</span>
             </div>
             
-            {/* Mini thumbnails slider */}
-            {filteredPanoramas.length > 1 && (
-              <div className="flex gap-2 max-w-xs overflow-x-auto scrollbar-hide">
-                {filteredPanoramas.map((thumb, index) => (
-                  <button
-                    key={thumb.id}
-                    onClick={() => handleThumbnailClick(index)}
-                    className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all ${
-                      index === currentModalIndex
-                        ? 'border-primary shadow-lg'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <img
-                      src={thumb.image}
-                      alt={thumb.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="flex gap-2 mb-6">
-            {currentPanorama?.tags.map((tag: string) => (
-              <Badge key={tag} variant="outline">#{tag}</Badge>
-            ))}
+            <div className="flex items-center gap-1 text-white/70">
+              <Icon name="Calendar" size={16} />
+              <span>{currentPanorama.uploadDate}</span>
+            </div>
           </div>
 
-          <div className="border-t pt-4">
-            <h4 className="font-semibold mb-3">Комментарии</h4>
+          {/* Comments */}
+          <div className="border-t border-white/20 pt-4">
+            <h4 className="font-semibold mb-3 text-white">Комментарии</h4>
+            
             <div className="space-y-2 mb-4 max-h-32 overflow-y-auto">
-              {(comments[currentPanorama?.id] || []).map((comment, idx) => (
-                <div key={idx} className="bg-slate-50 p-3 rounded-lg text-sm">
+              {(comments[currentPanorama.id] || []).map((comment, idx) => (
+                <div key={idx} className="bg-white/10 rounded-lg p-2 text-sm">
                   {comment}
                 </div>
               ))}
             </div>
+            
             <div className="flex gap-2">
-              <Textarea 
-                placeholder="Оставьте комментарий..."
+              <Input
                 value={newComment}
                 onChange={(e) => onCommentChange(e.target.value)}
-                className="flex-1 min-h-[40px] max-h-[80px]"
+                placeholder="Добавить комментарий..."
+                className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/60"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    onAddComment(currentPanorama.id);
+                  }
+                }}
               />
-              <Button onClick={() => onAddComment(currentPanorama?.id)}>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => onAddComment(currentPanorama.id)}
+              >
                 <Icon name="Send" size={16} />
               </Button>
             </div>
