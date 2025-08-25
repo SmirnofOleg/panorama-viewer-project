@@ -4,7 +4,7 @@ import HeroSection from '@/components/HeroSection';
 import CategoriesSection from '@/components/CategoriesSection';
 import PanoramaCard from '@/components/PanoramaCard';
 import Footer from '@/components/Footer';
-import AdminPanel from '@/components/AdminPanel';
+import AdvancedAdminPanel from '@/components/AdvancedAdminPanel';
 
 const Index = () => {
   const [selectedPanorama, setSelectedPanorama] = useState<any>(null);
@@ -27,6 +27,8 @@ const Index = () => {
       tags: ["горы", "снег", "пейзаж"],
       likes: 42,
       views: 156,
+      rating: 4.5,
+      totalRatings: 23,
       uploadDate: "2024-08-20",
       status: 'published' as const
     },
@@ -39,6 +41,8 @@ const Index = () => {
       tags: ["город", "закат", "небоскрёбы"],
       likes: 38,
       views: 203,
+      rating: 4.2,
+      totalRatings: 18,
       uploadDate: "2024-08-22",
       status: 'published' as const
     },
@@ -51,6 +55,8 @@ const Index = () => {
       tags: ["пляж", "океан", "тропики"],
       likes: 67,
       views: 289,
+      rating: 4.8,
+      totalRatings: 31,
       uploadDate: "2024-08-25",
       status: 'published' as const
     }
@@ -150,7 +156,7 @@ const Index = () => {
 
       {showAdmin ? (
         <div className="container mx-auto px-6 py-8">
-          <AdminPanel 
+          <AdvancedAdminPanel 
             panoramas={panoramas}
             onAddPanorama={handleAddPanorama}
             onEditPanorama={handleEditPanorama}
