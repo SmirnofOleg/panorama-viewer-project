@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import PanoramaViewer from '@/components/PanoramaViewer';
 
 interface HeroSectionProps {
   isSlideshow: boolean;
@@ -46,9 +45,10 @@ const HeroSection = ({
       {isSlideshow && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
           <div className="relative w-full h-full max-w-6xl max-h-4xl">
-            <PanoramaViewer 
-              imageUrl={filteredPanoramas[currentSlideshow]?.image}
-              className="w-full h-full"
+            <img 
+              src={filteredPanoramas[currentSlideshow]?.image}
+              alt={filteredPanoramas[currentSlideshow]?.title}
+              className="w-full h-full object-cover"
             />
             <Button 
               variant="secondary"
