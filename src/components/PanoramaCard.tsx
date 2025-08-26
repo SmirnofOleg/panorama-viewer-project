@@ -4,9 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import PanoramaModal from '@/components/PanoramaModal';
-import LikeSystem from '@/components/LikeSystem';
-import RatingSystem from '@/components/RatingSystem';
-import PanoramaViewer360 from '@/components/PanoramaViewer360';
 
 interface PanoramaCardProps {
   panorama: any;
@@ -40,26 +37,29 @@ const PanoramaCard = ({
   return (
     <Card className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-0 shadow-lg">
       <div className="relative overflow-hidden">
-        <div className="h-64">
-          <PanoramaViewer360 
-            imageUrl={panorama.image}
-            className="w-full h-full"
-          />
-        </div>
+        <img 
+          src={panorama.image}
+          alt={panorama.title}
+          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+        />
         <div className="absolute top-4 left-4">
           <Badge variant="secondary" className="bg-white/90 text-slate-800">
             {panorama.category}
           </Badge>
         </div>
         <div className="absolute top-4 right-4">
-          <LikeSystem
-            panoramaId={panorama.id}
-            initialLikes={panorama.likes}
-            variant="heart"
-            size="md"
-            onLike={onToggleLike}
-            className="bg-white/90 rounded-full p-2"
-          />
+          <Button 
+            size="sm" 
+            variant="secondary" 
+            className="bg-white/90 hover:bg-white"
+            onClick={() => onToggleLike(panorama.id)}
+          >
+            <Icon 
+              name="Heart" 
+              size={16} 
+              className={likes[panorama.id] ? 'text-red-500 fill-current' : ''}
+            />
+          </Button>
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
@@ -97,36 +97,22 @@ const PanoramaCard = ({
         </h3>
         <p className="text-slate-600 mb-4">{panorama.description}</p>
         
-        <div className="space-y-3">
-          <div className="flex gap-2 flex-wrap">
-            {panorama.tags?.slice(0, 3).map((tag: string) => (
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            {panorama.tags.slice(0, 2).map((tag: string) => (
               <Badge key={tag} variant="outline" className="text-xs">#{tag}</Badge>
             ))}
           </div>
-          
-          <RatingSystem
-            panoramaId={panorama.id}
-            initialRating={panorama.rating || 0}
-            totalRatings={panorama.totalRatings || 0}
-            size="sm"
-            showStats={true}
-          />
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 text-sm text-slate-500">
-              <LikeSystem
-                panoramaId={panorama.id}
-                initialLikes={panorama.likes}
-                variant="minimal"
-                size="sm"
-                onLike={onToggleLike}
-              />
-              <div className="flex items-center gap-1">
-                <Icon name="Eye" size={14} />
-                <span>{panorama.views}</span>
-              </div>
+          <div className="flex items-center gap-4 text-sm text-slate-500">
+            <div className="flex items-center gap-1">
+              <Icon name="Heart" size={14} className="text-red-500" />
+              <span>{likesCounts[panorama.id] || panorama.likes}</span>
             </div>
-            <Badge variant="secondary" className="text-primary font-medium">360°</Badge>
+            <div className="flex items-center gap-1">
+              <Icon name="Eye" size={14} />
+              <span>{panorama.views}</span>
+            </div>
+            <span className="text-primary font-medium">360°</span>
           </div>
         </div>
       </CardContent>
